@@ -1,10 +1,21 @@
-import cv2 
-import numpy 
-from ultralytics import YOLO 
- 
-model = YOLO('yolov8n.pt') 
- 
-cap = cv2.VideoCapture('veh2.mp4') 
+from pathlib import Path
+
+import cv2
+from ultralytics import YOLO
+
+project_dir = Path(__file__).resolve().parent
+model_path = project_dir / "yolo26n.pt"
+video_path = project_dir / "veh2.mp4"
+
+if not video_path.is_file():
+    raise FileNotFoundError(f"Video file not found: {video_path}")
+
+model = YOLO(model_path)
+
+cap = cv2.VideoCapture(video_path)
+if not cap.isOpened():
+    cap.release()
+    raise RuntimeError(f"Could not open video file: {video_path}")
  
 width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)) 
 height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)) 
@@ -54,7 +65,7 @@ while cap.isOpened():
                 previous_location = track_history[id] 
 
                 # =====================================
-                # The First Line
+                # The First Side
 
                 if previous_location < y_line1 <= y_center: 
                     counter += 1  
@@ -66,7 +77,7 @@ while cap.isOpened():
                     start_times[id] = current_time
 
                 # =====================================
-                # The Second Line
+                # The Other Side
 
                 if previous_location < y_line2 <= y_center:
 
