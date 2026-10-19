@@ -1,12 +1,12 @@
 # Car Detection and Speed Estimation
 
-This project uses YOLOv8 to track cars in a video, count when they cross a line, and estimate their speed between two lines.
+This project uses YOLO26n to track cars in a video, count when they cross a line, and estimate their speed between two lines.
 
 ## Files
 
 - `main.py`: the main script.
 - `veh2.mp4`: the video processed by the script.
-- `yolov8n.pt`: the YOLOv8n model weights.
+- `yolo26n.pt`: the YOLO26n model weights. If the file is not present, Ultralytics downloads the official weights automatically on first run (internet required).
 
 ## Run
 
@@ -21,6 +21,8 @@ Open a terminal in this folder and run:
 ```bash
 python main.py
 ```
+
+The script resolves the video and model paths relative to `main.py`, so it can also be launched from another working directory.
 
 A window will show the video with tracking, two lines, and a counter. Press the space bar to stop playback.
 
