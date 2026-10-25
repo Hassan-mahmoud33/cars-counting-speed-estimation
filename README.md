@@ -1,35 +1,63 @@
 # Car Detection and Speed Estimation
 
-This project uses YOLO26n to track cars in a video, count when they cross a line, and estimate their speed between two lines.
+Detects and tracks cars in a video with YOLO26n and estimates their speed. The project has two versions of the same idea: one written by hand with OpenCV, and one built on the Ultralytics `SpeedEstimator`.
 
 ## Files
 
-- `main.py`: the main script.
-- `veh2.mp4`: the video processed by the script.
-- `yolo26n.pt`: the YOLO26n model weights. If the file is not present, Ultralytics downloads the official weights automatically on first run (internet required).
+- `speed_estimate_manually.py`: Method 1. Tracks cars, counts line crossings, and calculates speed between two lines.
+- `speed_estimation_ultra.py`: Method 2. Uses the Ultralytics `SpeedEstimator`, with the line drawn by clicking on the first frame.
+- `veh2.mp4`: input video.
+- `output_ultra.mp4`: video produced by Method 2.
+- `yolo26n.pt`: YOLO26n weights. If the file is missing, Ultralytics downloads the official weights on first run (internet required).
 
-## Run
-
-Install Python and the required packages:
+## Install
 
 ```bash
 pip install opencv-python numpy ultralytics
 ```
 
-Open a terminal in this folder and run:
+## Run
+
+From this folder:
 
 ```bash
-python main.py
+python speed_estimate_manually.py
 ```
 
-The script resolves the video and model paths relative to `main.py`, so it can also be launched from another working directory.
+```bash
+python speed_estimation_ultra.py
+```
 
-A window will show the video with tracking, two lines, and a counter. Press the space bar to stop playback.
+Paths are resolved relative to each script, so you can run them from any directory. Press the space bar to stop playback.
 
-## Counting and Speed Notes
+## Method 1: Manual
 
-- The script tracks the car class detected by YOLO and increases the counter whenever a car crosses the first line. The counter records crossings, not unique cars, so a car may be counted again if it crosses the line another time.
-- Speed is estimated when a car moves downward in the image, crossing the first line and then the second. The counter detects crossings in either direction, but speed is not calculated reliably for cars moving upward.
-- The script assumes the distance between the lines is `20` meters (`distance_between_lines`). This is a placeholder, not a calibrated measurement; set it to the real-world distance represented by the two lines in your video for a more realistic estimate.
-- The first line's position depends on the video height, and the second line is placed `200` pixels below it. Speed accuracy depends on the video and the distance value you enter.
-- Results are shown on screen only; the script does not save an output video.
+- Tracks cars with ByteTrack and increases a counter each time a car crosses the first line. The counter counts crossings, not unique cars, so a car that crosses again is counted again.
+- Speed is the known distance between the two lines divided by the time the car takes to travel between them. It is only reliable for cars moving downward in the image. Crossings in either direction are counted.
+- `distance_between_lines` is set to `20` meters as a placeholder. Replace it with the real distance for realistic numbers.
+- The first line sits at two thirds of the video height, and the second is `200` pixels below it.
+- Output is shown on screen only. No video is saved.
+
+## Method 2: Ultralytics SpeedEstimator
+
+1. The first frame is shown. Click two points to define the line (ideally one on each side of the road). The line is previewed for two seconds, then the video starts.
+2. `SpeedEstimator` detects and tracks cars (class `car` only) and draws each car's speed on the frame.
+3. The annotated video is saved at the original resolution to `output_ultra.mp4`.
+
+Notes:
+
+- Clicks are mapped back to the original frame size, so the display size (960 px wide) does not affect the result. Detection and speed estimation always run on the original frame.
+- If `output_ultra.mp4` already exists, the script plays the video without saving. Delete the file to generate a new one.
+- Speeds are estimates. They depend on camera angle and on the pixel-to-meter scale, so they are not calibrated. For better accuracy, compare against a car with a known speed.
+- Stop with the space bar so the output file is closed properly.
+
+## Comparison
+
+| | Method 1 (Manual) | Method 2 (Ultralytics) |
+|---|---|---|
+| Code length | Long | Short |
+| Line setup | Fixed in code | Chosen by clicking |
+| Control over details | Full | Limited |
+| Car counter | Yes | No |
+| Saves output video | No | Yes (if it doesn't exist) |
+| Best for | Understanding how speed is calculated | Quick estimation |
