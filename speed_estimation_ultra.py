@@ -69,6 +69,7 @@ while len(line) < 2:
     if cv2.waitKey(20) & 0xFF == ord(' '):
         cap.release()
         cv2.destroyAllWindows()
+        raise SystemExit
 
 #------------------------------------------
 
